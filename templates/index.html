@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ComicCraft</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #0d1021, #1c2448);
+        color: #f8f3ff;
+      }
+      .container {
+        max-width: 720px;
+        margin: 40px auto;
+        padding: 32px;
+        background: rgba(20, 25, 45, 0.95);
+        border-radius: 18px;
+        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.28);
+      }
+      h1 {
+        text-align: center;
+        font-size: 2.4rem;
+        margin-bottom: 16px;
+      }
+      .subtitle {
+        text-align: center;
+        color: #c9c7ff;
+        margin-bottom: 26px;
+      }
+      form {
+        display: grid;
+        gap: 18px;
+      }
+      label {
+        font-weight: bold;
+      }
+      input, textarea, select {
+        width: 100%;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid #5864b4;
+        background: #121a33;
+        color: #fdfdff;
+        box-sizing: border-box;
+      }
+      textarea { min-height: 120px; resize: vertical; }
+      button {
+        background: linear-gradient(135deg, #f36d8d, #ffb26b);
+        color: #110d1d;
+        border: none;
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      button:hover { filter: brightness(1.06); }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎨 ComicCraft</h1>
+      <p class="subtitle">AI Comic Story Creator</p>
+      <form method="post" action="/generate">
+        <div>
+          <label for="prompt">Story Prompt</label>
+          <textarea id="prompt" name="prompt" placeholder="A brave fox exploring a magical forest...">A brave fox exploring a magical forest</textarea>
+        </div>
+
+        <div>
+          <label for="character">Character Name</label>
+          <input id="character" name="character" value="Alex" />
+        </div>
+
+        <div>
+          <label for="setting">Setting</label>
+          <input id="setting" name="setting" value="Forest" />
+        </div>
+
+        <div>
+          <label for="tone">Tone</label>
+          <select id="tone" name="tone">
+            <option value="Dramatic">Dramatic</option>
+            <option value="Adventurous">Adventurous</option>
+            <option value="Funny">Funny</option>
+            <option value="Mystery">Mystery</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="style">Art Style</label>
+          <select id="style" name="style">
+            <option value="Anime">Anime</option>
+            <option value="Cinematic">Cinematic</option>
+            <option value="Cartoon">Cartoon</option>
+            <option value="Illustration">Illustration</option>
+          </select>
+        </div>
+
+        <button type="submit">Create Comic</button>
+      </form>
+    </div>
+  </body>
+</html>
