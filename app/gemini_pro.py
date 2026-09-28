@@ -214,7 +214,7 @@ character_interaction
     try:
 
         response = client.models.generate_content(
-            model="gemini-3.1-pro-preview",
+            model="gemini-3.8-flash",
             contents=(
                 f"{prompt}\n\n"
                 f"ORIGINAL 5-PANEL OUTLINE:\n"
@@ -323,7 +323,7 @@ character_interaction
     except Exception as error:
 
         print(
-            f"Gemini Pro error: {error}"
+            f"Gemini Flash error: {error}"
         )
 
     return _fallback_enrichment(

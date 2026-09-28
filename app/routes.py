@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Dict
 
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -13,14 +13,29 @@ from app.gemini_pro import enrich_panels
 from app.image_generator import create_test_image, generate_panel_image
 from app.layout_builder import build_panel_layout
 
+
 app = FastAPI(title="ComicCraft")
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+
+app.mount(
+    "/static",
+    StaticFiles(directory="static"),
+    name="static"
+)
+
+templates = Jinja2Templates(
+    directory="templates"
+)
 
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse(request, "index.html", {"request": request})
+    return templates.TemplateResponse(
+        request,
+        "index.html",
+        {
+            "request": request
+        }
+    )
 
 
 @app.post("/generate")
@@ -32,54 +47,139 @@ async def generate_comic(
     tone: str = Form(...),
     style: str = Form(...),
 ):
-    panels = build_outline(prompt, character, setting, tone, style)
+    # Step 1: Generate 5-panel outline
+    panels = build_outline(
+        prompt,
+        character,
+        setting,
+        tone,
+        style
+    )
+
+    # Step 2: Enrich panels with narration/dialogue/image prompts
     rich_panels = enrich_panels(panels)
+
     generated_layout = []
 
+    # Step 3: Generate images
     for panel in rich_panels:
-        image_path = generate_panel_image(panel.get("image_prompt", prompt), int(panel.get("panel", 1)))
+
+        image_path = generate_panel_image(
+            panel.get("image_prompt", prompt),
+            int(panel.get("panel", 1))
+        )
+
         panel["image_path"] = image_path
+
         generated_layout.append(panel)
 
-    comic_layout = build_panel_layout(generated_layout)
-    return templates.TemplateResponse(request, "comic_preview.html", {
-        "request": request,
-        "panels": comic_layout,
-        "story_title": f"{character} in {setting}",
-    })
+    # Step 4: Build comic layout
+    comic_layout = build_panel_layout(
+        generated_layout
+    )
+
+    # Step 5: Show preview
+    return templates.TemplateResponse(
+        request,
+        "comic_preview.html",
+        {
+            "request": request,
+            "panels": comic_layout,
+            "story_title": f"{character} in {setting}",
+        }
+    )
 
 
 @app.get("/generate-comic/json")
 async def generate_comic_json():
-    sample = build_outline("A brave fox exploring a magical forest", "Alex", "Forest", "Dramatic", "Anime")
-    return {"panels": enrich_panels(sample)}
+
+    sample = build_outline(
+        "A brave fox exploring a magical forest",
+        "Alex",
+        "Forest",
+        "Dramatic",
+        "Anime"
+    )
+
+    return {
+        "panels": enrich_panels(sample)
+    }
 
 
 @app.get("/test-image")
 async def test_image():
-    return {"image": create_test_image()}
+
+    return {
+        "image": create_test_image()
+    }
 
 
 @app.get("/export-success")
 async def export_success(request: Request):
-    return templates.TemplateResponse(request, "export_success.html", {"request": request})
+
+    pdf_url = request.query_params.get("pdf")
+
+    # Only allow our generated PDF files
+    if (
+        not pdf_url
+        or not pdf_url.startswith("/static/exports/")
+        or not pdf_url.lower().endswith(".pdf")
+    ):
+        pdf_url = None
+
+    return templates.TemplateResponse(
+        request,
+        "export_success.html",
+        {
+            "request": request,
+            "pdf_url": pdf_url,
+        }
+    )
 
 
 @app.post("/export-pdf")
 async def export_pdf(request: Request):
+
     form = await request.form()
+
     panels = []
+
+    # Collect panel information from the form
     for key in sorted(form.keys()):
-        if key.startswith("panel_"):
+
+        if (
+            key.startswith("panel_")
+            and key[len("panel_"):].isdigit()
+        ):
+
             panels.append({
                 "title": form.get(key),
-                "narration": form.get(f"{key}_narration"),
-                "dialogue": form.get(f"{key}_dialogue"),
-                "image": form.get(f"{key}_image"),
+                "narration": form.get(
+                    f"{key}_narration"
+                ),
+                "dialogue": form.get(
+                    f"{key}_dialogue"
+                ),
+                "image": form.get(
+                    f"{key}_image"
+                ),
             })
 
+    # No panels found
     if not panels:
-        return RedirectResponse(url="/", status_code=303)
 
-    pdf_path = export_comic_pdf(panels)
-    return RedirectResponse(url=f"/export-success?pdf={pdf_path}", status_code=303)
+        return RedirectResponse(
+            url="/",
+            status_code=303
+        )
+
+    # Generate PDF
+    pdf_path = export_comic_pdf(
+        panels
+    )
+
+    # Redirect to success page
+    return RedirectResponse(
+        url=f"/export-success?pdf={pdf_path}",
+        status_code=303
+    )

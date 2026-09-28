@@ -28,7 +28,9 @@
     <div class="card">
       <h1>✅ Comic Exported</h1>
       <p>Your comic PDF is ready to download.</p>
-      <a class="link" href="/static/exports">Open Exports Folder</a>
+      {% if pdf_url %}
+      <a class="link" href="{{ pdf_url }}" download>Download Comic PDF</a>
+      {% endif %}
       <p><a href="/">Back to Home</a></p>
     </div>
   </body>

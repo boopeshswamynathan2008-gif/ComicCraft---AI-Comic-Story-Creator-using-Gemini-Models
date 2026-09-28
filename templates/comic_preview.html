@@ -15,7 +15,7 @@
       .panel-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 8px; }
       .narration { color: #444; margin: 8px 0; }
       .dialogue { color: #2e4b9f; font-weight: bold; }
-      .download { display: block; text-align: center; margin-top: 26px; text-decoration: none; background: #3f7ee8; color: white; padding: 14px 22px; border-radius: 12px; font-weight: bold; }
+      .download { display: block; width: 100%; box-sizing: border-box; text-align: center; margin-top: 26px; text-decoration: none; background: #3f7ee8; color: white; padding: 14px 22px; border: 0; border-radius: 12px; font: inherit; font-weight: bold; cursor: pointer; }
     </style>
   </head>
   <body>
@@ -33,7 +33,15 @@
         </div>
         {% endfor %}
       </div>
-      <a class="download" href="/export-success">Download PDF</a>
+      <form action="/export-pdf" method="post">
+        {% for panel in panels %}
+        <input type="hidden" name="panel_{{ panel.panel }}" value="{{ panel.title }}" />
+        <input type="hidden" name="panel_{{ panel.panel }}_narration" value="{{ panel.narration }}" />
+        <input type="hidden" name="panel_{{ panel.panel }}_dialogue" value="{{ panel.dialogue }}" />
+        <input type="hidden" name="panel_{{ panel.panel }}_image" value="{{ panel.image }}" />
+        {% endfor %}
+        <button class="download" type="submit">Download PDF</button>
+      </form>
     </div>
   </body>
 </html>
